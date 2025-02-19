@@ -3,11 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <script defer src="script.js"></script>
-    <title>Document</title>
+    <title>QuizMaster - Test Your Knowledge</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <h1>QuizMaster</h1>
+            </div>
+        </header>
+
+        <section id="quiz-options" class="screen active">
+            <div class="screen-content">
+                <h2>Customize Your Quiz</h2>
+                <form id="quiz-form">
+                    <div class="form-group">
+                        <label for="num-questions">Number of Questions:</label>
+                        <input type="number" id="num-questions" min="1" max="50" value="10">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Category:</label>
+                        <select id="category">
+                            <option value="">Any Category</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="difficulty">Difficulty:</label>
+                        <select id="difficulty">
+                            <option value="">Any Difficulty</option>
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="type">Question Type:</label>
+                        <select id="type">
+                            <option value="">Any Type</option>
+                            <option value="multiple">Multiple Choice</option>
+                            <option value="boolean">True / False</option>
+                        </select>
+                    </div>
+                    
+                    <button type="button" id="start-quiz" class="btn primary-btn">
+                        <i class="fas fa-play"></i> Start Quiz
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <section id="quiz-questions" class="screen">
+            <div class="screen-content">
+                <div class="quiz-header">
+                    <div class="quiz-info">
+                        <span id="question-counter">Question 1/10</span>
+                        <span id="score-display">Score: 0</span>
+                    </div>
+                    <div class="timer">
+                        <i class="fas fa-clock"></i>
+                        <span id="timer-display">00:00</span>
+                    </div>
+                </div>
+                
+                <div class="question-container">
+                    <h3 id="question-text">Question text goes here</h3>
+                    <div id="options-container" class="options-container">
+                    </div>
+                </div>
+                
+                <div id="feedback-container" class="feedback-container">
+                </div>
+                
+                <div class="quiz-controls">
+                    <button id="quit-quiz" class="btn secondary-btn">
+                        <i class="fas fa-times"></i> Quit Quiz
+                    </button>
+                    <button id="next-question" class="btn primary-btn" disabled>
+                        <i class="fas fa-arrow-right"></i> Next Question
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="quiz-results" class="screen">
+            <div class="screen-content results-content">
+                <h2>Quiz Results</h2>
+                
+                <div class="result-card">
+                    <div class="score-circle">
+                        <span id="final-score">0</span>
+                        <span class="score-denominator" id="total-questions">/10</span>
+                    </div>
+                    
+                    <div class="score-details">
+                        <p>Correct Answers: <span id="correct-answers">0</span></p>
+                        <p>Incorrect Answers: <span id="incorrect-answers">0</span></p>
+                        <p>Accuracy: <span id="accuracy">0%</span></p>
+                        <p>Time Taken: <span id="time-taken">00:00</span></p>
+                    </div>
+                    
+                    <div id="achievement-badge" class="achievement-badge">
+                    </div>
+                </div>
+                
+                <div class="result-actions">
+                    <button id="view-answers" class="btn secondary-btn">
+                        <i class="fas fa-search"></i> Review Answers
+                    </button>
+                    <button id="new-quiz" class="btn primary-btn">
+                        <i class="fas fa-redo"></i> New Quiz
+                    </button>
+                </div>
+                
+                <div id="answers-review" class="answers-review">
+                </div>
+            </div>
+        </section>
+
+        <div id="loading-spinner" class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading questions...</p>
+        </div>
+    </div>
+
+    <div id="error-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Error</h3>
+            <p id="error-message">An error occurred. Please try again.</p>
+            <button id="modal-ok" class="btn primary-btn">OK</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
