@@ -19,15 +19,15 @@ const categoryIcons = {
   "Science & Nature": "fas fa-microscope",
   "Science: Computers": "fas fa-laptop-code",
   "Science: Mathematics": "fas fa-calculator",
-  Mythology: "fas fa-dragon",
-  Sports: "fas fa-futbol",
-  Geography: "fas fa-mountain",
-  History: "fas fa-landmark",
-  Politics: "fas fa-vote-yea",
-  Art: "fas fa-palette",
-  Celebrities: "fas fa-star",
-  Animals: "fas fa-paw",
-  Vehicles: "fas fa-car",
+  "Mythology": "fas fa-dragon",
+  "Sports": "fas fa-futbol",
+  "Geography": "fas fa-mountain",
+  "History": "fas fa-landmark",
+  "Politics": "fas fa-vote-yea",
+  "Art": "fas fa-palette",
+  "Celebrities": "fas fa-star",
+  "Animals": "fas fa-paw",
+  "Vehicles": "fas fa-car",
   "Entertainment: Comics": "fas fa-book-open",
   "Science: Gadgets": "fas fa-mobile-alt",
   "Entertainment: Japanese Anime & Manga": "fas fa-robot",
@@ -191,15 +191,15 @@ function loadQuestion() {
   const difficultyClass = `difficulty-${currentQuestion.difficulty}`;
 
   elements.questionText.innerHTML = `
-        <div class="question-category">
-            <i class="${categoryIcon} category-icon"></i>
-            ${currentQuestion.category}
-            <span class="difficulty-badge ${difficultyClass}">
-                ${capitalizeFirstLetter(currentQuestion.difficulty)}
-            </span>
-        </div>
-        ${currentQuestion.question}
-    `;
+      <div class="question-category">
+          <i class="${categoryIcon} category-icon"></i>
+          ${currentQuestion.category}
+          <span class="difficulty-badge ${difficultyClass}">
+              ${capitalizeFirstLetter(currentQuestion.difficulty)}
+          </span>
+      </div>
+      ${currentQuestion.question}
+  `;
 
   elements.optionsContainer.innerHTML = "";
 
@@ -265,6 +265,7 @@ function showPointsAnimation(element, points) {
   pointsIndicator.textContent = `+${points}`;
   pointsIndicator.style.left = `${rect.left + rect.width / 2}px`;
   pointsIndicator.style.top = `${rect.top}px`;
+
   document.body.appendChild(pointsIndicator);
 
   setTimeout(() => {
@@ -286,6 +287,8 @@ function endQuiz() {
   clearInterval(quizTimer);
   quizDuration = Math.floor((new Date() - startTime) / 1000);
 
+  console.log("Quiz ended. User answers:", userAnswers);
+
   const correctCount = userAnswers.filter(
     (answer) => answer && answer.isCorrect
   ).length;
@@ -304,6 +307,11 @@ function endQuiz() {
   elements.accuracy.textContent = `${accuracyPercentage}%`;
   elements.timeTaken.textContent = formatTime(quizDuration);
   setAchievementBadge(accuracyPercentage);
+
+  elements.answersReview.style.display = "none";
+  elements.viewAnswersBtn.innerHTML =
+    '<i class="fas fa-search"></i> Review Answers';
+
   switchScreen("results");
 }
 
@@ -347,12 +355,10 @@ function toggleAnswersReview() {
     elements.answersReview.style.display === "none" ||
     elements.answersReview.style.display === ""
   ) {
+    generateAnswersReview();
     elements.answersReview.style.display = "block";
     elements.viewAnswersBtn.innerHTML =
       '<i class="fas fa-eye-slash"></i> Hide Review';
-    if (elements.answersReview.innerHTML === "") {
-      generateAnswersReview();
-    }
   } else {
     elements.answersReview.style.display = "none";
     elements.viewAnswersBtn.innerHTML =
@@ -363,13 +369,19 @@ function toggleAnswersReview() {
 function generateAnswersReview() {
   elements.answersReview.innerHTML = "";
 
+  if (!userAnswers || userAnswers.length === 0) {
+    elements.answersReview.innerHTML = "<p>No answers to review.</p>";
+    return;
+  }
+
   userAnswers.forEach((answer, index) => {
     if (!answer) return;
 
     const reviewItem = document.createElement("div");
     reviewItem.classList.add("review-item");
 
-    const categoryIcon = categoryIcons[answer.category] || defaultCategoryIcon;
+    const categoryIcon =
+      categoryIcons[answer.category] || "fas fa-question-circle";
     const difficultyClass = `difficulty-${answer.difficulty}`;
 
     reviewItem.innerHTML = `
@@ -384,16 +396,14 @@ function generateAnswersReview() {
             <div class="review-answer ${
               answer.isCorrect ? "review-correct" : "review-wrong"
             }">
-                Your answer: ${answer.userAnswer}
-                ${
-                  answer.isCorrect
-                    ? '<i class="fas fa-check"></i>'
-                    : '<i class="fas fa-times"></i>'
-                }
+                <span>Your answer: ${answer.userAnswer}</span>
+                <i class="fas fa-${answer.isCorrect ? "check" : "times"}"></i>
             </div>
             ${
               !answer.isCorrect
-                ? `<div class="review-correct-answer">Correct answer: ${answer.correctAnswer}</div>`
+                ? `<div class="review-correct-answer">
+                    Correct answer: ${answer.correctAnswer}
+                </div>`
                 : ""
             }
         `;
@@ -452,3 +462,206 @@ function decodeHTML(html) {
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+function createCustomDropdown() {
+  const selects = document.querySelectorAll('select');
+  
+  selects.forEach(select => {
+    const customDropdown = document.createElement('div');
+    customDropdown.className = 'custom-dropdown';
+    
+    const selectedOption = document.createElement('div');
+    selectedOption.className = 'selected-option';
+    selectedOption.innerHTML = `
+      <span>${select.options[select.selectedIndex].text}</span>
+      <i class="fas fa-chevron-down"></i>
+    `;
+    
+    const optionsContainer = document.createElement('div');
+    optionsContainer.className = 'options-container';
+    
+    Array.from(select.options).forEach(option => {
+      const customOption = document.createElement('div');
+      customOption.className = 'option';
+      customOption.dataset.value = option.value;
+      customOption.textContent = option.text;
+      
+      customOption.addEventListener('click', () => {
+        select.value = option.value;
+        const event = new Event('change');
+        select.dispatchEvent(event);
+        selectedOption.querySelector('span').textContent = option.text;
+        optionsContainer.classList.remove('show');
+      });
+      
+      optionsContainer.appendChild(customOption);
+    });
+    selectedOption.addEventListener('click', () => {
+      optionsContainer.classList.toggle('show');
+    });
+    document.addEventListener('click', (e) => {
+      if (!customDropdown.contains(e.target)) {
+        optionsContainer.classList.remove('show');
+      }
+    });
+    
+    customDropdown.appendChild(selectedOption);
+    customDropdown.appendChild(optionsContainer);
+    select.style.display = 'none';
+    select.parentNode.insertBefore(customDropdown, select.nextSibling);
+    select.addEventListener('change', () => {
+      selectedOption.querySelector('span').textContent = 
+        select.options[select.selectedIndex].text;
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initApp();
+  createCustomDropdown();
+});
+
+function formatCategories() {
+  return [
+    { id: 9, name: "General Knowledge" },
+    { id: 10, name: "Entertainment: Books" },
+    { id: 11, name: "Entertainment: Film" },
+    { id: 12, name: "Entertainment: Music" },
+    { id: 13, name: "Entertainment: Musicals & Theatres" },
+    { id: 14, name: "Entertainment: Television" },
+    { id: 15, name: "Entertainment: Video Games" },
+    { id: 16, name: "Entertainment: Board Games" },
+    { id: 17, name: "Science & Nature" },
+    { id: 18, name: "Science: Computers" },
+    { id: 19, name: "Science: Mathematics" },
+    { id: 20, name: "Mythology" },
+    { id: 21, name: "Sports" },
+    { id: 22, name: "Geography" },
+    { id: 23, name: "History" },
+    { id: 24, name: "Politics" },
+    { id: 25, name: "Art" },
+    { id: 26, name: "Celebrities" },
+    { id: 27, name: "Animals" },
+    { id: 28, name: "Vehicles" },
+    { id: 29, name: "Entertainment: Comics" },
+    { id: 30, name: "Science: Gadgets" },
+    { id: 31, name: "Entertainment: Japanese Anime & Manga" },
+    { id: 32, name: "Entertainment: Cartoon & Animations" }
+  ];
+}
+
+function createCustomDropdown() {
+  const selects = document.querySelectorAll('select');
+  
+  selects.forEach(select => {
+    const customDropdown = document.createElement('div');
+    customDropdown.className = 'custom-dropdown';
+    const selectedOption = document.createElement('div');
+    selectedOption.className = 'selected-option';
+    selectedOption.innerHTML = `
+      <span>${select.options[select.selectedIndex].text}</span>
+      <i class="fas fa-chevron-down"></i>
+    `;
+    const optionsContainer = document.createElement('div');
+    optionsContainer.className = 'options-container';
+    const addedValues = new Set();
+    
+    Array.from(select.options).forEach(option => {
+      if (addedValues.has(option.value)) {
+        return;
+      }
+      addedValues.add(option.value);
+      const customOption = document.createElement('div');
+      customOption.className = 'option';
+      customOption.dataset.value = option.value;
+      customOption.textContent = option.text;
+      
+      customOption.addEventListener('click', () => {
+        select.value = option.value;
+        const event = new Event('change');
+        select.dispatchEvent(event);
+        selectedOption.querySelector('span').textContent = option.text
+        optionsContainer.classList.remove('show');
+      });
+      
+      optionsContainer.appendChild(customOption);
+    });
+    
+    selectedOption.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.options-container.show').forEach(container => {
+        if (container !== optionsContainer) {
+          container.classList.remove('show');
+        }
+      });
+      
+      optionsContainer.classList.toggle('show');
+    });
+    
+    document.addEventListener('click', () => {
+      optionsContainer.classList.remove('show');
+    });
+    
+    customDropdown.appendChild(selectedOption);
+    customDropdown.appendChild(optionsContainer);
+    select.style.display = 'none';
+    const existingDropdown = select.nextElementSibling;
+    if (existingDropdown && existingDropdown.classList.contains('custom-dropdown')) {
+      existingDropdown.remove();
+    }
+    
+    select.parentNode.insertBefore(customDropdown, select.nextSibling);
+    select.addEventListener('change', () => {
+      selectedOption.querySelector('span').textContent = 
+        select.options[select.selectedIndex].text;
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  elements.startQuizBtn.addEventListener("click", startQuiz);
+  elements.nextQuestionBtn.addEventListener("click", loadNextQuestion);
+  elements.quitQuizBtn.addEventListener("click", endQuiz);
+  elements.newQuizBtn.addEventListener("click", resetQuiz);
+  elements.viewAnswersBtn.addEventListener("click", toggleAnswersReview);
+  elements.modalOkBtn.addEventListener("click", hideErrorModal);
+  elements.closeModalBtn.addEventListener("click", hideErrorModal);
+  
+  try {
+    categories = formatCategories();
+    populateCategories();
+    createCustomDropdown();
+  } catch (error) {
+    showError(
+      "Failed to load categories. Please check your internet connection and refresh the page."
+    );
+  }
+});
+
+
+async function initApp() {
+  elements.startQuizBtn.addEventListener("click", startQuiz);
+  elements.nextQuestionBtn.addEventListener("click", loadNextQuestion);
+  elements.quitQuizBtn.addEventListener("click", endQuiz);
+  elements.newQuizBtn.addEventListener("click", resetQuiz);
+  elements.viewAnswersBtn.addEventListener("click", toggleAnswersReview);
+  elements.modalOkBtn.addEventListener("click", hideErrorModal);
+  elements.closeModalBtn.addEventListener("click", hideErrorModal);
+
+  try {
+    categories = formatCategories();
+    populateCategories();
+  } catch (error) {
+    showError(
+      "Failed to load categories. Please check your internet connection and refresh the page."
+    );
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initApp();
+  
+  setTimeout(() => {
+    createCustomDropdown();
+  }, 100);
+});
