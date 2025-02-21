@@ -19,15 +19,15 @@ const categoryIcons = {
   "Science & Nature": "fas fa-microscope",
   "Science: Computers": "fas fa-laptop-code",
   "Science: Mathematics": "fas fa-calculator",
-  "Mythology": "fas fa-dragon",
-  "Sports": "fas fa-futbol",
-  "Geography": "fas fa-mountain",
-  "History": "fas fa-landmark",
-  "Politics": "fas fa-vote-yea",
-  "Art": "fas fa-palette",
-  "Celebrities": "fas fa-star",
-  "Animals": "fas fa-paw",
-  "Vehicles": "fas fa-car",
+  Mythology: "fas fa-dragon",
+  Sports: "fas fa-futbol",
+  Geography: "fas fa-mountain",
+  History: "fas fa-landmark",
+  Politics: "fas fa-vote-yea",
+  Art: "fas fa-palette",
+  Celebrities: "fas fa-star",
+  Animals: "fas fa-paw",
+  Vehicles: "fas fa-car",
   "Entertainment: Comics": "fas fa-book-open",
   "Science: Gadgets": "fas fa-mobile-alt",
   "Entertainment: Japanese Anime & Manga": "fas fa-robot",
@@ -182,40 +182,37 @@ function processQuestion(questionData) {
 
 function loadQuestion() {
   const currentQuestion = questions[currentQuestionIndex];
-  elements.questionCounter.textContent = `Question ${
-    currentQuestionIndex + 1
-  }/${questions.length}`;
+  elements.questionCounter.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
   elements.scoreDisplay.textContent = `Score: ${score}`;
-  const categoryIcon =
-    categoryIcons[currentQuestion.category] || defaultCategoryIcon;
+  
+  const categoryIcon = categoryIcons[currentQuestion.category] || defaultCategoryIcon;
   const difficultyClass = `difficulty-${currentQuestion.difficulty}`;
 
   elements.questionText.innerHTML = `
-      <div class="question-category">
-          <i class="${categoryIcon} category-icon"></i>
-          ${currentQuestion.category}
-          <span class="difficulty-badge ${difficultyClass}">
-              ${capitalizeFirstLetter(currentQuestion.difficulty)}
-          </span>
-      </div>
-      ${currentQuestion.question}
+    <div class="question-category">
+      <i class="${categoryIcon} category-icon"></i>
+      ${currentQuestion.category}
+      <span class="difficulty-badge ${difficultyClass}">
+        ${capitalizeFirstLetter(currentQuestion.difficulty)}
+      </span>
+    </div>
+    ${currentQuestion.question}
   `;
 
-  elements.optionsContainer.innerHTML = "";
+  elements.optionsContainer.className = 'quiz-options-container';  
+  elements.optionsContainer.innerHTML = '';
 
   currentQuestion.answers.forEach((answer, index) => {
-    const optionElement = document.createElement("div");
-    optionElement.classList.add("option");
+    const optionElement = document.createElement('div');
+    optionElement.classList.add('quiz-option');  // Updated class name
     optionElement.textContent = answer;
     optionElement.dataset.answer = answer;
-    optionElement.addEventListener("click", () =>
-      selectOption(optionElement, answer)
-    );
+    optionElement.addEventListener('click', () => selectOption(optionElement, answer));
     elements.optionsContainer.appendChild(optionElement);
   });
 
-  elements.feedbackContainer.innerHTML = "";
-  elements.feedbackContainer.className = "feedback-container";
+  elements.feedbackContainer.innerHTML = '';
+  elements.feedbackContainer.className = 'feedback-container';
   elements.nextQuestionBtn.disabled = true;
 }
 
@@ -225,7 +222,7 @@ function selectOption(optionElement, answer) {
 
   if (elements.nextQuestionBtn.disabled === false) return;
   if (isCorrect) {
-    score += 1;
+    score += difficultyPoints[currentQuestion.difficulty];
     elements.scoreDisplay.textContent = `Score: ${score}`;
   }
 
@@ -240,12 +237,12 @@ function selectOption(optionElement, answer) {
 
   Array.from(elements.optionsContainer.children).forEach((option) => {
     const optionAnswer = option.dataset.answer;
-    option.classList.add("disabled");
+    option.classList.add('disabled');
 
     if (optionAnswer === currentQuestion.correctAnswer) {
-      option.classList.add("correct");
+      option.classList.add('correct');
     } else if (option === optionElement && !isCorrect) {
-      option.classList.add("wrong");
+      option.classList.add('wrong');
     }
   });
 
@@ -253,8 +250,7 @@ function selectOption(optionElement, answer) {
     ? `<i class="fas fa-check-circle"></i> Correct!`
     : `<i class="fas fa-times-circle"></i> Incorrect. The correct answer is: ${currentQuestion.correctAnswer}`;
 
-  elements.feedbackContainer.classList.add(isCorrect ? "correct" : "wrong");
-
+  elements.feedbackContainer.classList.add(isCorrect ? 'correct' : 'wrong');
   elements.nextQuestionBtn.disabled = false;
 }
 
@@ -464,59 +460,57 @@ function capitalizeFirstLetter(string) {
 }
 
 function createCustomDropdown() {
-  const selects = document.querySelectorAll('select');
-  
-  selects.forEach(select => {
-    const customDropdown = document.createElement('div');
-    customDropdown.className = 'custom-dropdown';
-    
-    const selectedOption = document.createElement('div');
-    selectedOption.className = 'selected-option';
+  const selects = document.querySelectorAll("select");
+
+  selects.forEach((select) => {
+    const customDropdown = document.createElement("div");
+    customDropdown.className = "custom-dropdown";
+
+    const selectedOption = document.createElement("div");
+    selectedOption.className = "selected-option";
     selectedOption.innerHTML = `
       <span>${select.options[select.selectedIndex].text}</span>
       <i class="fas fa-chevron-down"></i>
     `;
-    
-    const optionsContainer = document.createElement('div');
-    optionsContainer.className = 'options-container';
-    
-    Array.from(select.options).forEach(option => {
-      const customOption = document.createElement('div');
-      customOption.className = 'option';
+
+    const optionsContainer = document.createElement("div");
+    optionsContainer.className = "dropdown-options-container";
+
+    Array.from(select.options).forEach((option) => {
+      const customOption = document.createElement("div");
+      customOption.className = "option";
       customOption.dataset.value = option.value;
       customOption.textContent = option.text;
-      
-      customOption.addEventListener('click', () => {
+
+      customOption.addEventListener("click", () => {
         select.value = option.value;
-        const event = new Event('change');
+        const event = new Event("change");
         select.dispatchEvent(event);
-        selectedOption.querySelector('span').textContent = option.text;
-        optionsContainer.classList.remove('show');
+        selectedOption.querySelector("span").textContent = option.text;
+        optionsContainer.classList.remove("show");
       });
-      
+
       optionsContainer.appendChild(customOption);
     });
-    selectedOption.addEventListener('click', () => {
-      optionsContainer.classList.toggle('show');
+
+    selectedOption.addEventListener("click", () => {
+      optionsContainer.classList.toggle("show");
     });
-    document.addEventListener('click', (e) => {
+
+    document.addEventListener("click", (e) => {
       if (!customDropdown.contains(e.target)) {
-        optionsContainer.classList.remove('show');
+        optionsContainer.classList.remove("show");
       }
     });
-    
+
     customDropdown.appendChild(selectedOption);
     customDropdown.appendChild(optionsContainer);
-    select.style.display = 'none';
+    select.style.display = "none";
     select.parentNode.insertBefore(customDropdown, select.nextSibling);
-    select.addEventListener('change', () => {
-      selectedOption.querySelector('span').textContent = 
-        select.options[select.selectedIndex].text;
-    });
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   initApp();
   createCustomDropdown();
 });
@@ -546,79 +540,84 @@ function formatCategories() {
     { id: 29, name: "Entertainment: Comics" },
     { id: 30, name: "Science: Gadgets" },
     { id: 31, name: "Entertainment: Japanese Anime & Manga" },
-    { id: 32, name: "Entertainment: Cartoon & Animations" }
+    { id: 32, name: "Entertainment: Cartoon & Animations" },
   ];
 }
 
 function createCustomDropdown() {
-  const selects = document.querySelectorAll('select');
-  
-  selects.forEach(select => {
-    const customDropdown = document.createElement('div');
-    customDropdown.className = 'custom-dropdown';
-    const selectedOption = document.createElement('div');
-    selectedOption.className = 'selected-option';
+  const selects = document.querySelectorAll("select");
+
+  selects.forEach((select) => {
+    const customDropdown = document.createElement("div");
+    customDropdown.className = "custom-dropdown";
+    const selectedOption = document.createElement("div");
+    selectedOption.className = "selected-option";
     selectedOption.innerHTML = `
       <span>${select.options[select.selectedIndex].text}</span>
       <i class="fas fa-chevron-down"></i>
     `;
-    const optionsContainer = document.createElement('div');
-    optionsContainer.className = 'options-container';
+    const optionsContainer = document.createElement("div");
+    optionsContainer.className = "options-container";
     const addedValues = new Set();
-    
-    Array.from(select.options).forEach(option => {
+
+    Array.from(select.options).forEach((option) => {
       if (addedValues.has(option.value)) {
         return;
       }
       addedValues.add(option.value);
-      const customOption = document.createElement('div');
-      customOption.className = 'option';
+      const customOption = document.createElement("div");
+      customOption.className = "option";
       customOption.dataset.value = option.value;
       customOption.textContent = option.text;
-      
-      customOption.addEventListener('click', () => {
+
+      customOption.addEventListener("click", () => {
         select.value = option.value;
-        const event = new Event('change');
+        const event = new Event("change");
         select.dispatchEvent(event);
-        selectedOption.querySelector('span').textContent = option.text
-        optionsContainer.classList.remove('show');
+        selectedOption.querySelector("span").textContent = option.text;
+        optionsContainer.classList.remove("show");
       });
-      
+
       optionsContainer.appendChild(customOption);
     });
-    
-    selectedOption.addEventListener('click', (e) => {
+
+    selectedOption.addEventListener("click", (e) => {
       e.stopPropagation();
-      document.querySelectorAll('.options-container.show').forEach(container => {
-        if (container !== optionsContainer) {
-          container.classList.remove('show');
-        }
-      });
-      
-      optionsContainer.classList.toggle('show');
+      document
+        .querySelectorAll(".options-container.show")
+        .forEach((container) => {
+          if (container !== optionsContainer) {
+            container.classList.remove("show");
+          }
+        });
+
+      optionsContainer.classList.toggle("show");
     });
-    
-    document.addEventListener('click', () => {
-      optionsContainer.classList.remove('show');
+
+    document.addEventListener("click", () => {
+      optionsContainer.classList.remove("show");
     });
-    
+
     customDropdown.appendChild(selectedOption);
     customDropdown.appendChild(optionsContainer);
-    select.style.display = 'none';
+    select.style.display = "none";
     const existingDropdown = select.nextElementSibling;
-    if (existingDropdown && existingDropdown.classList.contains('custom-dropdown')) {
+    if (
+      existingDropdown &&
+      existingDropdown.classList.contains("custom-dropdown")
+    ) {
       existingDropdown.remove();
     }
-    
+
     select.parentNode.insertBefore(customDropdown, select.nextSibling);
-    select.addEventListener('change', () => {
-      selectedOption.querySelector('span').textContent = 
+    select.addEventListener("change", () => {
+      selectedOption.querySelector("span").textContent =
         select.options[select.selectedIndex].text;
     });
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   elements.startQuizBtn.addEventListener("click", startQuiz);
   elements.nextQuestionBtn.addEventListener("click", loadNextQuestion);
   elements.quitQuizBtn.addEventListener("click", endQuiz);
@@ -626,7 +625,7 @@ document.addEventListener('DOMContentLoaded', () => {
   elements.viewAnswersBtn.addEventListener("click", toggleAnswersReview);
   elements.modalOkBtn.addEventListener("click", hideErrorModal);
   elements.closeModalBtn.addEventListener("click", hideErrorModal);
-  
+
   try {
     categories = formatCategories();
     populateCategories();
@@ -637,7 +636,6 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   }
 });
-
 
 async function initApp() {
   elements.startQuizBtn.addEventListener("click", startQuiz);
@@ -658,9 +656,9 @@ async function initApp() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   initApp();
-  
+
   setTimeout(() => {
     createCustomDropdown();
   }, 100);
