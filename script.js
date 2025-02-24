@@ -204,7 +204,7 @@ function loadQuestion() {
 
   currentQuestion.answers.forEach((answer, index) => {
     const optionElement = document.createElement('div');
-    optionElement.classList.add('quiz-option');  // Updated class name
+    optionElement.classList.add('quiz-option');
     optionElement.textContent = answer;
     optionElement.dataset.answer = answer;
     optionElement.addEventListener('click', () => selectOption(optionElement, answer));
@@ -213,14 +213,21 @@ function loadQuestion() {
 
   elements.feedbackContainer.innerHTML = '';
   elements.feedbackContainer.className = 'feedback-container';
+
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  elements.nextQuestionBtn.innerHTML = isLastQuestion ? 
+    '<i class="fas fa-chart-bar"></i> View Score' : 
+    '<i class="fas fa-arrow-right"></i> Next Question';
   elements.nextQuestionBtn.disabled = true;
 }
 
 function selectOption(optionElement, answer) {
   const currentQuestion = questions[currentQuestionIndex];
   const isCorrect = answer === currentQuestion.correctAnswer;
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
   if (elements.nextQuestionBtn.disabled === false) return;
+  
   if (isCorrect) {
     score += difficultyPoints[currentQuestion.difficulty];
     elements.scoreDisplay.textContent = `Score: ${score}`;
@@ -270,12 +277,13 @@ function showPointsAnimation(element, points) {
 }
 
 function loadNextQuestion() {
-  currentQuestionIndex++;
-
-  if (currentQuestionIndex < questions.length) {
-    loadQuestion();
-  } else {
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  
+  if (isLastQuestion) {
     endQuiz();
+  } else {
+    currentQuestionIndex++;
+    loadQuestion();
   }
 }
 
